@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DANU AUTOMATION TOOLS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .theme-dark { --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --accent: #6366f1; --border: #334155; --input-bg: #0f172a; --subtext: #94a3b8; --btn-text: #ffffff; }
+        .theme-light { --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --accent: #4f46e5; --border: #cbd5e1; --input-bg: #ffffff; --subtext: #64748b; --btn-text: #ffffff; }
+        .theme-emerald { --bg: #022c22; --card: #064e3b; --text: #ecfdf5; --accent: #10b981; --border: #065f46; --input-bg: #022c22; --subtext: #6ee7b7; --btn-text: #022c22; }
+        .theme-midnight { --bg: #000000; --card: #111111; --text: #ffffff; --accent: #f43f5e; --border: #333333; --input-bg: #000000; --subtext: #a1a1aa; --btn-text: #ffffff; }
+
+        body { background-color: var(--bg); color: var(--text); transition: all 0.3s ease; }
+        .title-accent { color: var(--accent); }
+        .text-main { color: var(--text); }
+        .text-sub { color: var(--subtext); }
+        .action-card { background-color: var(--card); border: 1px solid var(--border); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); }
+        .input-box { background-color: var(--input-bg); border: 1px solid var(--border); color: var(--text); font-size: 11px; }
+        .input-box:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 2px var(--accent)44; }
+        .drag-handle { cursor: grab; color: var(--accent); font-size: 1.5rem; }
+        .dragging { opacity: 0.1; transform: scale(0.95); border: 2px dashed var(--accent) !important; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+        .btn-accent { background-color: var(--accent); color: var(--btn-text); }
+        header { border-color: var(--border); }
+
+        /* Guide UI */
+        #guidePanel { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateY(20px); opacity: 0; pointer-events: none; z-index: 100; }
+        #guidePanel.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+        .command-block { background: rgba(0,0,0,0.5); color: #10b981; padding: 12px; border-radius: 12px; font-family: monospace; font-size: 11px; position: relative; border: 1px solid var(--border); }
+        .copy-cmd-btn { position: absolute; right: 8px; top: 8px; background: var(--accent); color: var(--btn-text); font-size: 9px; padding: 3px 8px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        
+        select option { background-color: var(--card); color: var(--text); }
+    </style>
+</head>
+<body class="theme-dark min-h-screen font-sans">
+
+<div class="fixed bottom-8 right-8 z-[100]">
+        <div id="guidePanel" class="absolute bottom-20 right-0 w-[90vw] md:w-[550px] action-card p-10 shadow-[0_30px_60px_rgba(0,0,0,0.7)] border-2 border-white/10 rounded-[45px]">
+            <div class="flex justify-between items-start mb-8 border-b border-white/10 pb-6">
+                <div>
+                    <h3 class="text-3xl font-black italic title-accent uppercase tracking-tighter leading-none">Master Protocol</h3>
+                    <p class="text-[10px] text-sub uppercase font-black tracking-[0.3em] mt-2">Implementation Guide</p>
+                </div>
+                <button onclick="toggleGuide()" class="text-main hover:text-red-500 text-4xl leading-none">&times;</button>
+            </div>
+            
+            <div id="guideScroll" class="max-h-[60vh] overflow-y-auto custom-scroll pr-6 space-y-10">
+                
+                <div class="guide-section">
+                    <p class="font-black text-main uppercase text-xs tracking-widest mb-4 flex items-center gap-3">
+                        <span class="w-7 h-7 btn-accent rounded-xl flex items-center justify-center text-[11px] shadow-xl italic">01</span> 
+                        Environment Setup
+                    </p>
+                    <div class="space-y-4 text-[12px] leading-relaxed text-sub">
+                        <p>Sebelum memulai, pastikan <b class="text-white">Node.js (LTS Version)</b> sudah terinstal di OS Anda. Framework ini menggunakan engine Puppeteer dengan lapisan Stealth untuk menghindari deteksi sidik jari digital.</p>
+                        <div class="bg-black/40 p-5 rounded-2xl border border-white/5 space-y-3">
+                            <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Step 1: Inisialisasi & Install Dependencies</p>
+                            <div class="command-block">
+                                <span id="cmdFull">npm init -y && npm install puppeteer puppeteer-extra puppeteer-extra-plugin-stealth</span>
+                                <div class="copy-cmd-btn" onclick="copyCommand('cmdFull')">COPY</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-section">
+                    <p class="font-black text-main uppercase text-xs tracking-widest mb-4 flex items-center gap-3">
+                        <span class="w-7 h-7 btn-accent rounded-xl flex items-center justify-center text-[11px] shadow-xl italic">02</span> 
+                        Feature Functionality
+                    </p>
+                    <div class="grid grid-cols-1 gap-4 text-[11px] leading-relaxed text-sub">
+                        <div class="bg-white/5 p-4 rounded-[25px] border border-white/5">
+                            <p class="text-white font-black mb-2 uppercase italic text-xs">📍 Selector Strategy</p>
+                            <ul class="space-y-2">
+                                <li>• <b class="text-indigo-400">CSS/XPATH:</b> Gunakan untuk elemen statis. Ambil dari Inspect Element > Copy Selector.</li>
+                                <li>• <b class="text-indigo-400">TEXT:</b> Mode cerdas untuk mencari elemen berdasarkan teks yang terlihat. Sangat berguna jika ID elemen berubah-ubah (dynamic ID).</li>
+                                <li>• <b class="text-indigo-400">COORD:</b> Fitur presisi tingkat tinggi. Mengarahkan kursor dan melakukan klik pada koordinat (X,Y). Gunakan jika elemen berada di dalam <i class="text-white">HTML5 Canvas</i> atau tertutup layer transparan.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white/5 p-4 rounded-[25px] border border-white/5">
+                            <p class="text-white font-black mb-2 uppercase italic text-xs">🛠️ Self-Healing Engine (Retry)</p>
+                            <p>Fitur ini memberikan kemampuan <b class="text-emerald-400">Auto-Recovery</b> pada script. Jika dicentang, script tidak akan langsung mati (crash) saat elemen tidak ditemukan, melainkan akan menunggu dan mencoba ulang sesuai jumlah <i class="text-white">Max Try</i> yang Anda tentukan.</p>
+                        </div>
+                        <div class="bg-white/5 p-4 rounded-[25px] border border-white/5">
+                            <p class="text-white font-black mb-2 uppercase italic text-xs">🚀 Turbo Mode</p>
+                            <p>Mengaktifkan <b class="text-amber-400">Request Interception</b>. Script akan memblokir download gambar, font, dan media. Hasilnya: Loading web 3x lebih cepat dan penggunaan RAM di RDP jauh lebih hemat.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-section">
+                    <p class="font-black text-main uppercase text-xs tracking-widest mb-4 flex items-center gap-3">
+                        <span class="w-7 h-7 btn-accent rounded-xl flex items-center justify-center text-[11px] shadow-xl italic">03</span> 
+                        Deployment Sequence
+                    </p>
+                    <div class="space-y-3 text-[12px] leading-relaxed text-sub">
+                        <p>Ikuti prosedur ini untuk menjalankan bot Anda:</p>
+                        <div class="pl-4 space-y-3 border-l-2 border-indigo-500/30">
+                            <p>1. Susun langkah kerja pada <b class="text-white">Builder Panel</b> (sebelah kiri).</p>
+                            <p>2. Klik <b class="text-white uppercase tracking-tighter italic">Compile Stealth Engine</b> untuk memproses logika.</p>
+                            <p>3. Copy seluruh output kode dan simpan sebagai file <code class="text-indigo-300">bot.js</code>.</p>
+                            <p>4. Jalankan payload menggunakan engine Node.js:</p>
+                        </div>
+                        <div class="command-block">
+                            <span id="cmdRunBot">node bot.js</span>
+                            <div class="copy-cmd-btn" onclick="copyCommand('cmdRunBot')">COPY</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-section border-none">
+                    <p class="font-black text-main uppercase text-xs tracking-widest mb-4 flex items-center gap-3">
+                        <span class="w-7 h-7 btn-accent rounded-xl flex items-center justify-center text-[11px] shadow-xl italic">04</span> 
+                        Emergency Protocol
+                    </p>
+                    <div class="bg-red-500/10 p-5 rounded-[30px] border border-red-500/20">
+                        <p class="text-[11px] text-red-200 leading-relaxed">
+                            <b class="uppercase">Auto-Screenshot:</b> Jika terjadi kegagalan sistem atau elemen tidak ditemukan setelah batas retry, mesin akan otomatis mengabadikan kondisi browser terakhir dalam file <b class="text-white italic">final_error.png</b>. Gunakan file ini untuk menganalisis penyebab kegagalan.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="toggleGuide()" class="btn-accent w-20 h-20 rounded-[25px] shadow-[0_15px_40px_rgba(0,0,0,0.6)] flex flex-col items-center justify-center hover:scale-110 transition-all active:scale-95 border-4 border-white/10 group">
+            <span class="text-[10px] font-black leading-none mb-1 uppercase tracking-tighter opacity-70 group-hover:opacity-100">Manual</span>
+            <span class="text-3xl font-black italic">?</span>
+        </button>
+    </div>
+
+    <div class="max-w-7xl mx-auto p-6">
+        <header class="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-8 gap-6">
+            <div>
+                <h1 class="text-5xl font-black tracking-tighter uppercase">
+                    <span class="title-accent italic">Danu</span> <span class="text-main">Web Automation Builder V1</span>
+                </h1>
+                <p class="text-sub text-sm font-black uppercase tracking-[0.5em] mt-2 italic">Generate script otomatis tanpa coding ribet.</p>
+            </div>
+            
+            <div class="flex flex-wrap gap-4 items-center p-4 rounded-[30px] bg-black/20 border border-white/10 shadow-xl">
+                <div class="flex gap-2 border-r border-slate-700 pr-4">
+                    <button onclick="setTheme('dark')" class="w-8 h-8 rounded-full bg-slate-800 border-2 border-slate-600 hover:scale-110 transition"></button>
+                    <button onclick="setTheme('light')" class="w-8 h-8 rounded-full bg-white border-2 border-slate-300 hover:scale-110 transition"></button>
+                    <button onclick="setTheme('emerald')" class="w-8 h-8 rounded-full bg-emerald-600 border-2 border-emerald-400 hover:scale-110 transition"></button>
+                    <button onclick="setTheme('midnight')" class="w-8 h-8 rounded-full bg-red-600 border-2 border-red-400 hover:scale-110 transition"></button>
+                </div>
+                
+                <div class="flex flex-col gap-1 pr-4 border-r border-slate-700">
+                    <label class="flex items-center gap-2 text-[10px] font-bold uppercase cursor-pointer text-sub">
+                        <input type="checkbox" id="turboMode" onchange="saveSettings()" class="w-3 h-3 rounded accent-indigo-500"> Turbo
+                    </label>
+                    <label class="flex items-center gap-2 text-[10px] font-bold uppercase cursor-pointer text-sub">
+                        <input type="checkbox" id="autoAlert" checked onchange="saveSettings()" class="w-3 h-3 rounded accent-indigo-500"> Alert
+                    </label>
+                </div>
+
+                <div class="flex gap-3">
+                    <button onclick="clearAll()" class="bg-red-500/10 text-red-500 px-5 py-2 rounded-2xl font-black text-[10px] tracking-widest hover:bg-red-500 transition">RESET</button>
+                    <button onclick="addAction()" class="btn-accent px-6 py-2 rounded-2xl font-black text-[10px] tracking-widest shadow-lg transition uppercase">+ Action</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-5 space-y-4 custom-scroll overflow-y-auto max-h-[78vh] pr-2">
+                <div id="actionList" class="space-y-4"></div>
+                <div id="emptyState" class="text-center py-24 border-2 border-dashed border-slate-700 rounded-[40px] bg-black/10">
+                    <p class="text-sub text-[10px] font-black uppercase tracking-[0.4em]">Constructing Stealth Path...</p>
+                </div>
+            </div>
+
+            <div class="lg:col-span-7 space-y-4">
+                <div class="rounded-[40px] overflow-hidden shadow-2xl border border-white/10 bg-black">
+                    <div class="flex justify-between items-center px-10 py-5 bg-white/5 border-b border-white/5">
+                        <span class="text-[10px] font-black tracking-widest uppercase text-sub font-mono italic">Compiled_Payload.js</span>
+                        <button onclick="copyScript()" class="text-[10px] font-black text-sub hover:text-white transition tracking-widest uppercase border border-white/10 px-4 py-1 rounded-full">Copy Script</button>
+                    </div>
+                    <textarea id="outputScript" readonly 
+                        class="w-full h-[580px] bg-transparent text-emerald-400 p-8 font-mono text-[11px] leading-relaxed resize-none focus:outline-none custom-scroll"
+                        placeholder="// Final compilation result..."></textarea>
+                </div>
+                <button onclick="generateScript()" class="w-full btn-accent py-6 rounded-[35px] font-black text-2xl shadow-2xl transition-all hover:scale-[1.01] active:scale-95 uppercase tracking-tighter italic">
+                    COMPILE STEALTH ENGINE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let actions = [];
+
+        window.onload = () => {
+            const savedSteps = localStorage.getItem('danu_steps');
+            const savedTheme = localStorage.getItem('danu_theme');
+            const savedSet = localStorage.getItem('danu_settings');
+            if (savedSteps) { actions = JSON.parse(savedSteps); renderActions(); }
+            if (savedTheme) setTheme(savedTheme);
+            if (savedSet) {
+                const s = JSON.parse(savedSet);
+                document.getElementById('turboMode').checked = s.turboMode;
+                document.getElementById('autoAlert').checked = s.autoAlert;
+            }
+        };
+
+        function toggleGuide() { document.getElementById('guidePanel').classList.toggle('open'); }
+        function copyCommand(id) { const t = document.getElementById(id).innerText; navigator.clipboard.writeText(t); alert('Copied!'); }
+        function setTheme(t) { document.body.className = 'theme-' + t; localStorage.setItem('danu_theme', t); }
+        function saveSettings() { localStorage.setItem('danu_settings', JSON.stringify({ turboMode: document.getElementById('turboMode').checked, autoAlert: document.getElementById('autoAlert').checked })); }
+        function saveToLocal() { localStorage.setItem('danu_steps', JSON.stringify(actions)); }
+        function clearAll() { if(confirm("Hapus semua?")) { actions = []; saveToLocal(); renderActions(); } }
+
+        function addAction() {
+            actions.push({ id: Date.now().toString(), type: 'navigate', value: '', selectBy: 'css', selector: '', waitMode: 'seconds', timeoutValue: '30', typeDelay: '100', useRetry: false, maxRetry: '3', posX: '0', posY: '0' });
+            saveToLocal(); renderActions();
+        }
+
+        function deleteAction(id) { actions = actions.filter(a => a.id !== id); saveToLocal(); renderActions(); }
+
+        function updateAction(id, field, value) {
+            const action = actions.find(a => a.id === id);
+            if (action) { 
+                if (field === 'useRetry') action[field] = value === 'true';
+                else action[field] = value; 
+                saveToLocal(); 
+            }
+        }
+
+        function renderActions() {
+            const container = document.getElementById('actionList');
+            const empty = document.getElementById('emptyState');
+            if (actions.length === 0) { empty.classList.remove('hidden'); container.innerHTML = ''; return; }
+            empty.classList.add('hidden');
+            
+            container.innerHTML = '';
+            actions.forEach((action, index) => {
+                const card = document.createElement('div');
+                card.className = `action-card p-6 rounded-[35px] relative flex gap-4 items-start`;
+                card.dataset.id = action.id;
+
+                card.innerHTML = `
+                    <div class="drag-handle select-none pt-2 opacity-30">⠿</div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-5">
+                            <div class="flex items-center gap-4">
+                                <span class="btn-accent w-7 h-7 flex items-center justify-center rounded-xl text-[10px] font-black italic shadow-lg">${index + 1}</span>
+                                <select onchange="updateAction('${action.id}', 'type', this.value); renderActions();" class="bg-transparent font-black text-sm uppercase outline-none border-b-2 border-dashed border-current text-main italic">
+                                    <option value="navigate">NAVIGATE</option>
+                                    <option value="click" ${action.type === 'click' ? 'selected' : ''}>CLICK</option>
+                                    <option value="type" ${action.type === 'type' ? 'selected' : ''}>TYPE</option>
+                                    <option value="wait" ${action.type === 'wait' ? 'selected' : ''}>WAIT</option>
+                                    <option value="delay" ${action.type === 'delay' ? 'selected' : ''}>DELAY</option>
+                                </select>
+                            </div>
+                            <button onclick="deleteAction('${action.id}')" class="text-sub hover:text-red-500 font-bold transition text-[10px] tracking-widest uppercase opacity-50 hover:opacity-100">Del</button>
+                        </div>
+                        <div class="space-y-4">${renderFields(action)}</div>
+                    </div>
+                `;
+
+                const handle = card.querySelector('.drag-handle');
+                handle.onmousedown = () => card.draggable = true;
+                handle.onmouseup = () => card.draggable = false;
+                card.addEventListener('dragstart', () => card.classList.add('dragging'));
+                card.addEventListener('dragend', () => { card.classList.remove('dragging'); card.draggable = false; reorderActions(); });
+
+                container.appendChild(card);
+            });
+            initDragEvents();
+        }
+
+        function initDragEvents() {
+            const container = document.getElementById('actionList');
+            container.ondragover = e => {
+                e.preventDefault();
+                const dragging = document.querySelector('.dragging');
+                const afterElement = [...container.querySelectorAll('.action-card:not(.dragging)')].reduce((closest, child) => {
+                    const box = child.getBoundingClientRect();
+                    const offset = e.clientY - box.top - box.height / 2;
+                    if (offset < 0 && offset > closest.offset) return { offset, element: child };
+                    else return closest;
+                }, { offset: Number.NEGATIVE_INFINITY }).element;
+                if (afterElement == null) container.appendChild(dragging);
+                else container.insertBefore(dragging, afterElement);
+            };
+        }
+
+        function reorderActions() {
+            const els = [...document.querySelectorAll('.action-card')];
+            actions = els.map(el => actions.find(a => a.id === el.dataset.id));
+            saveToLocal(); renderActions();
+        }
+
+        function renderFields(action) {
+            if (action.type === 'navigate') return `<input type="text" placeholder="Target URL (https://...)" value="${action.value}" oninput="updateAction('${action.id}', 'value', this.value)" class="input-box w-full px-5 py-4 rounded-2xl outline-none font-bold">`;
+            if (action.type === 'delay') return `<input type="number" placeholder="ms" value="${action.value}" oninput="updateAction('${action.id}', 'value', this.value)" class="input-box w-full px-5 py-4 rounded-2xl outline-none font-bold text-center">`;
+            
+            let fields = `<div class="flex gap-3">
+                    <select onchange="updateAction('${action.id}', 'selectBy', this.value); renderActions();" class="input-box text-[10px] font-black rounded-2xl px-4 outline-none uppercase tracking-widest min-w-[100px]">
+                        <option value="css" ${action.selectBy === 'css' ? 'selected' : ''}>CSS</option>
+                        <option value="xpath" ${action.selectBy === 'xpath' ? 'selected' : ''}>XPATH</option>
+                        <option value="text" ${action.selectBy === 'text' ? 'selected' : ''}>TEXT</option>
+                        <option value="coord" ${action.selectBy === 'coord' ? 'selected' : ''}>COORD</option>
+                    </select>`;
+
+            if (action.selectBy === 'coord') {
+                fields += `
+                    <div class="flex gap-2">
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[9px] font-black opacity-30">X</span>
+                            <input type="number" placeholder="0" value="${action.posX || '0'}" oninput="updateAction('${action.id}', 'posX', this.value)" class="input-box w-20 pl-7 pr-3 py-4 rounded-2xl outline-none font-bold text-center">
+                        </div>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[9px] font-black opacity-30">Y</span>
+                            <input type="number" placeholder="0" value="${action.posY || '0'}" oninput="updateAction('${action.id}', 'posY', this.value)" class="input-box w-20 pl-7 pr-3 py-4 rounded-2xl outline-none font-bold text-center">
+                        </div>
+                    </div>`;
+            } else {
+                fields += `<input type="text" placeholder="Selector / Element Text..." value="${action.selector}" oninput="updateAction('${action.id}', 'selector', this.value)" class="input-box flex-1 px-5 py-4 rounded-2xl outline-none font-bold">`;
+            }
+            fields += `</div>`;
+
+            if (action.type === 'wait') {
+                fields += `<div class="flex gap-3 mt-3">
+                    <select onchange="updateAction('${action.id}', 'waitMode', this.value); renderActions();" class="input-box text-[10px] font-black rounded-2xl px-4 outline-none uppercase tracking-widest">
+                        <option value="seconds" ${action.waitMode === 'seconds' ? 'selected' : ''}>Seconds</option>
+                        <option value="never" ${action.waitMode === 'never' ? 'selected' : ''}>Never</option>
+                    </select>
+                    ${action.waitMode === 'seconds' ? 
+                        `<input type="number" placeholder="Secs" value="${action.timeoutValue || '30'}" oninput="updateAction('${action.id}', 'timeoutValue', this.value)" class="input-box w-24 px-5 py-4 rounded-2xl outline-none font-bold text-center">` : 
+                        `<div class="flex-1 text-[9px] text-emerald-500 py-4 px-4 font-black uppercase tracking-widest italic">Infinity Polling</div>`
+                    }
+                </div>`;
+            }
+
+            if (action.type === 'type') {
+                fields += `
+                <div class="mt-3 space-y-3">
+                    <input type="text" placeholder="String to type..." value="${action.value}" oninput="updateAction('${action.id}', 'value', this.value)" class="input-box w-full px-5 py-4 rounded-2xl outline-none font-bold italic">
+                    <div class="flex items-center gap-3 bg-black/20 p-3 rounded-2xl">
+                        <span class="text-[9px] uppercase font-black text-sub tracking-widest">Typing Delay (ms):</span>
+                        <input type="number" value="${action.typeDelay || '100'}" oninput="updateAction('${action.id}', 'typeDelay', this.value)" class="input-box w-20 px-3 py-2 rounded-xl outline-none text-center font-bold">
+                    </div>
+                </div>`;
+            }
+
+            fields += `
+                <div class="flex items-center justify-between border-t border-white/5 pt-4 mt-4">
+                    <label class="flex items-center gap-3 text-[10px] font-black text-sub cursor-pointer uppercase tracking-tighter hover:text-white transition">
+                        <input type="checkbox" ${action.useRetry ? 'checked' : ''} onchange="updateAction('${action.id}', 'useRetry', this.checked ? 'true' : 'false'); renderActions();" class="w-4 h-4 rounded accent-indigo-500"> Enable Self-Healing
+                    </label>
+                    ${action.useRetry ? `
+                        <div class="flex items-center gap-3">
+                            <span class="text-[9px] text-sub uppercase font-black">Max Try:</span>
+                            <input type="number" value="${action.maxRetry || '3'}" oninput="updateAction('${action.id}', 'maxRetry', this.value)" class="input-box w-14 px-2 py-2 rounded-xl outline-none text-center font-bold">
+                        </div>
+                    ` : ''}
+                </div>`;
+
+            return fields;
+        }
+
+        function generateScript() {
+            const turbo = document.getElementById('turboMode').checked;
+            const alert = document.getElementById('autoAlert').checked;
+
+            let code = `/**\n * DANU STEALTH PAYLOAD V11\n */\n\nconst puppeteer = require('puppeteer-extra');\nconst StealthPlugin = require('puppeteer-extra-plugin-stealth');\npuppeteer.use(StealthPlugin());\n\n`;
+            code += `(async () => {\n    const browser = await puppeteer.launch({\n        executablePath: 'C:\\\\Program Files\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe',\n        headless: false,\n        args: ['--start-maximized', '--no-sandbox', '--disable-setuid-sandbox', '--disable-blink-features=AutomationControlled', '--disable-infobars', '--ignore-certificate-errors'],\n        defaultViewport: null\n    });\n\n    const [mainPage] = await browser.pages();\n    await mainPage.evaluateOnNewDocument(() => { Object.defineProperty(navigator, 'webdriver', { get: () => false }); });\n    await mainPage.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36');\n`;
+
+            if (turbo) code += `\n    await mainPage.setRequestInterception(true);\n    mainPage.on('request', (req) => { if (['image', 'media', 'font'].includes(req.resourceType())) req.abort(); else req.continue(); });\n`;
+            if (alert) code += `\n    mainPage.on('dialog', async d => await d.accept());\n`;
+
+            code += `\n    const humanMove = async (page, x, y) => { await page.mouse.move(x, y, { steps: 25 }); };\n`;
+            code += `\n    const runWithRetry = async (fn, maxRetries = 1, stepName = 'Action') => {\n        for (let i = 0; i < maxRetries; i++) {\n            try { return await fn(); } catch (err) {\n                console.error(\`[\${stepName}] FAIL (Attempt \${i + 1}/\${maxRetries}): \${err.message}\`);\n                if (i === maxRetries - 1) throw err;\n                await new Promise(r => setTimeout(r, 2000));\n            }\n        }\n    };\n\n    try {\n`;
+
+            actions.forEach((a, i) => {
+                const maxTry = a.useRetry ? parseInt(a.maxRetry) || 3 : 1;
+                code += `        // --- STEP ${i+1}: ${a.type.toUpperCase()} ---\n`;
+                code += `        await runWithRetry(async () => {\n`;
+
+                if (a.type === 'navigate') {
+                    code += `            await mainPage.goto('${a.value}', { waitUntil: 'networkidle2', timeout: 45000 });\n`;
+                } else if (a.type === 'delay') {
+                    code += `            await new Promise(r => setTimeout(r, ${a.value}));\n`;
+                } else if (a.selectBy === 'coord') {
+                    code += `            await humanMove(mainPage, ${a.posX}, ${a.posY});\n`;
+                    code += `            await mainPage.mouse.click(${a.posX}, ${a.posY}, { delay: 100 });\n`;
+                } else {
+                    const selector = getNativeSelector(a);
+                    const timeout = a.type === 'wait' ? (a.waitMode === 'never' ? 0 : (parseInt(a.timeoutValue) * 1000 || 30000)) : 10000;
+                    code += `            const el = await mainPage.waitForSelector('${selector}', { visible: true, timeout: ${timeout} });\n`;
+                    if (a.type !== 'wait') {
+                        code += `            const box = await el.boundingBox();\n`;
+                        code += `            if (box) { await humanMove(mainPage, box.x + box.width/2, box.y + box.height/2); await el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }\n`;
+                    }
+                    if (a.type === 'click') code += `            await mainPage.click('${selector}', { delay: 150 });\n`;
+                    if (a.type === 'type') code += `            await mainPage.type('${selector}', '${a.value}', { delay: ${parseInt(a.typeDelay) || 100} });\n`;
+                }
+                code += `        }, ${maxTry}, 'Step ${i + 1}');\n\n`;
+            });
+
+            code += `        console.log('--- ALL TASKS DONE ---');\n    } catch (e) {\n        console.error('FINAL ERROR:', e.message);\n        await mainPage.screenshot({ path: 'final_error.png' });\n    }\n})();`;
+            document.getElementById('outputScript').value = code;
+        }
+
+        function getNativeSelector(a) {
+            if (a.selectBy === 'css') return a.selector;
+            if (a.selectBy === 'xpath') return `xpath/${a.selector}`;
+            if (a.selectBy === 'text') {
+                if (a.type === 'type') return `input[placeholder*="${a.selector}"], textarea[placeholder*="${a.selector}"]`;
+                return `::-p-text(${a.selector})`;
+            }
+            return a.selector;
+        }
+
+        function copyScript() { const textarea = document.getElementById('outputScript'); textarea.select(); document.execCommand('copy'); alert('Copied!'); }
+    </script>
+</body>
+</html>
